@@ -1,4 +1,5 @@
 from rply import LexerGenerator, ParserGenerator
+from rply.token import BaseBox
 
 from pydull.dullast import FnDef, Match, DataConstr, FnCall, Var, PatternVar, PatternData, Arm, Ast
 
@@ -15,11 +16,17 @@ lg.add('FN', r'fn')
 lg.add('LOWER_IDENTIFIER', r'[a-z_][a-zA-Z0-9_]*')
 lg.add('UPPER_IDENTIFIER', r'[A-Z][a-zA-Z0-9_]*')
 
+class DummyList(BaseBox):
+    def __init__(self, l):
+        self.l = l
+
+class DummyStr(BaseBox):
+    def __init__(self, s):
+        self.s = s
 
 lg.ignore(r'\s+|#.*')
 
 lexer = lg.build()
-
 
 pg = ParserGenerator(
     ['COMMA', 'LPAREN', 'RPAREN', 'LBRACE', 'RBRACE', 'ARROW',
@@ -29,15 +36,17 @@ pg = ParserGenerator(
 
 @pg.production('program : fn_defs')
 def program(p):
-    return Ast(p[0])
+    p0 = p[0]
+    assert(isinstance(p0, DummyList))
+    return Ast(p0.l)
 
 @pg.production('fn_defs : fn_defs fn_def')
 def fn_defs_multiple(p):
-    return p[0] + [p[1]]
+    return DummyList(p[0] + [p[1]])
 
 @pg.production('fn_defs : fn_def')
 def fn_defs_single(p):
-    return [p[0]]
+    return DummyList([p[0]])
 
 @pg.production('fn_def : FN LOWER_IDENTIFIER argdecl LBRACE expr RBRACE')
 def fn_def(p):
@@ -49,15 +58,15 @@ def argdecl(p):
 
 @pg.production('argdecl : LPAREN RPAREN')
 def argdecl_empty(p):
-    return []
+    return DummyList([])
 
 @pg.production('fn_args : fn_args COMMA expr')
 def fn_args_multiple(p):
-    return p[0] + [p[2]]
+    return DummyList(p[0] + [p[2]])
 
 @pg.production('fn_args : expr')
 def fn_args_single(p):
-    return [p[0]]
+    return DummyList([p[0]])
 
 @pg.production('expr : match_expr')
 def expr_match(p):
@@ -69,11 +78,11 @@ def match_expr(p):
 
 @pg.production('match_arms : match_arms match_arm')
 def match_arms_multiple(p):
-    return p[0] + [p[1]]
+    return DummyList(p[0] + [p[1]])
 
 @pg.production('match_arms : match_arm')
 def match_arms_single(p):
-    return [p[0]]
+    return DummyList([p[0]])
 
 @pg.production('match_arm : pattern ARROW expr COMMA')
 def match_arm(p):
@@ -93,11 +102,11 @@ def pattern_data(p):
 
 @pg.production('pattern_vars : pattern_vars COMMA pattern_var')
 def pattern_vars_multiple(p):
-    return p[0] + [p[2]]
+    return DummyList(p[0] + [p[2]])
 
 @pg.production('pattern_vars : pattern_var')
 def pattern_vars_single(p):
-    return [p[0]]
+    return DummyList([p[0]])
 
 @pg.production('pattern_var : LOWER_IDENTIFIER')
 def pattern_var(p):
@@ -106,7 +115,6 @@ def pattern_var(p):
 @pg.production('expr : LOWER_IDENTIFIER LPAREN exprs RPAREN')
 def expr_fn_call(p):
     return FnCall(p[0].getstr(), p[2])
-
 
 @pg.production('expr : LOWER_IDENTIFIER LPAREN RPAREN')
 def expr_fn_call_no_args(p):
@@ -126,11 +134,11 @@ def expr_data_constr_no_args(p):
 
 @pg.production('exprs : exprs COMMA expr')
 def exprs_multiple(p):
-    return p[0] + [p[2]]
+    return DummyList(p[0] + [p[2]])
 
 @pg.production('exprs : expr')
 def exprs_single(p):
-    return [p[0]]
+    return DummyList([p[0]])
 
 parser = pg.build()
 
