@@ -20,7 +20,7 @@ def find_func(name, ast):
     for f in ast.fns:
         if f.name == name:
             return f
-    raise "oh no"
+    raise KeyError()
 
 def eval_expr(expr, sigma, ast):
     if isinstance(expr, DataConstr):
@@ -38,17 +38,19 @@ def eval_expr(expr, sigma, ast):
                 sigma[pattern.name] = v
             elif isinstance(pattern, PatternData) and pattern.name == v.dcname:
                 sigma = sigma.copy()
-                for a, b in zip(pattern.vars, v.args):
+                for i, a in enumerate(pattern.vars):
+                    b = v.args[i]
                     sigma[a.name] = b
             else: continue
             return eval_expr(arm.result, sigma, ast)
-    raise "oh noes"
+    raise ValueError()
 
 def run_fn(fnname, args, ast):
     f = find_func(fnname, ast)
 
     sigma = {}
-    for a, b in zip(args, f.args):
+    for i, a in enumerate(args):
+        b = f.args[i]
         sigma[b.name] = a
     return eval_expr(f.expr, sigma, ast)
 

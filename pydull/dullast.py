@@ -4,7 +4,12 @@ class FnDef(BaseBox):
     def __init__(self, name, args, expr):
         assert isinstance(name, str)
         self.name = name
-        self.args = args
+        assert isinstance(args, list)
+        vars = []
+        for var in args:
+            assert isinstance(var, Var)
+            vars.append(var)
+        self.args = vars
         self.expr = expr
     
     def __repr__(self):
@@ -16,7 +21,11 @@ class Expr(BaseBox):
 class Match(Expr):
     def __init__(self, head, arms):
         self.head = head
-        self.arms = arms
+        x = []
+        for arm in arms:
+            assert isinstance(arm, Arm)
+            x.append(arm)
+        self.arms = x
     
     def __repr__(self):
         return "Match(%r, %r)" % (self.head, self.arms)
@@ -58,7 +67,11 @@ class PatternVar(Pattern):
 class PatternData(Pattern):
     def __init__(self, name, vars):
         self.name = name
-        self.vars = vars
+        l = []
+        for v in vars:
+            assert isinstance(v, PatternVar)
+            l.append(v)
+        self.vars = l
     
     def __repr__(self):
         return "PatternData(%r, %r)" % (self.name, self.vars)
