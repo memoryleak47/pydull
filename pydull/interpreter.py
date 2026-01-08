@@ -28,17 +28,16 @@ def eval_expr(expr, sigma, ast):
     if isinstance(expr, Var):
         return sigma[expr.name]
     if isinstance(expr, FnCall):
-        return run_fn(expr.name, [eval_expr(x, sigma, ast) for x in expr.args], ast)
+        return run_fn(expr.name, [eval_expr(x, sigma, ast) for x in expr.exprs], ast)
     if isinstance(expr, Pattern):
         assert(False)
 
 def run_fn(fnname, args, ast):
     f = find_func(fnname, ast)
-    assert args == []
 
     sigma = dict()
     for a, b in zip(args, f.args):
-        sigma[b] = a
+        sigma[b.name] = a
     return eval_expr(f.expr, sigma, ast)
 
 def run(ast):
