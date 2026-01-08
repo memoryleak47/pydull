@@ -1,4 +1,7 @@
 from pydull.dullast import *
+from rpython.rlib import jit
+
+driver = jit.JitDriver(reds="auto", greens=["f"], is_recursive=True)
 
 class Value:
     def __init__(self, dcname, args):
@@ -24,6 +27,7 @@ def find_func(name, ast):
             return f
     raise KeyError()
 
+@jit.unroll_safe
 def eval_expr(expr, sigma, ast):
     if isinstance(expr, DataConstr):
         return Value(expr.name, [eval_expr(x, sigma, ast) for x in expr.exprs])
@@ -47,6 +51,7 @@ def eval_expr(expr, sigma, ast):
             return eval_expr(arm.result, sigma, ast)
     raise ValueError()
 
+@jit.unroll_safe
 def run_fn(fnname, args, ast):
     f = find_func(fnname, ast)
 
@@ -54,6 +59,7 @@ def run_fn(fnname, args, ast):
     for i, a in enumerate(args):
         b = f.args[i]
         sigma[b.name] = a
+    driver.jit_merge_point(f=f)
     return eval_expr(f.expr, sigma, ast)
 
 def run(ast):
