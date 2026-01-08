@@ -53,7 +53,7 @@ def fn_defs_single(p):
 
 @pg.production('fn_def : FN LOWER_IDENTIFIER argdecl LBRACE expr RBRACE')
 def fn_def(p):
-    return FnDef(p[1].getstr(), p[2], p[4])
+    return FnDef(p[1].getstr(), unpack_list(p[2]), p[4])
 
 @pg.production('argdecl : LPAREN fn_args RPAREN')
 def argdecl(p):
@@ -77,7 +77,7 @@ def expr_match(p):
 
 @pg.production('match_expr : MATCH expr LBRACE match_arms RBRACE')
 def match_expr(p):
-    return Match(p[1], p[3])
+    return Match(p[1], unpack_list(p[3]))
 
 @pg.production('match_arms : match_arms match_arm')
 def match_arms_multiple(p):
@@ -91,7 +91,9 @@ def match_arms_single(p):
 def match_arm(p):
     p2 = p[2]
     assert(isinstance(p2, Expr))
-    return Arm(p[0], p2)
+    p0 = p[0]
+    assert isinstance(p0, Pattern)
+    return Arm(p0, p2)
 
 @pg.production('pattern : LOWER_IDENTIFIER')
 def pattern_var(p):

@@ -39,6 +39,7 @@ class FnCall(Expr):
 
 class Var(Expr):
     def __init__(self, name):
+        assert isinstance(name, str)
         self.name = name
     
     def __repr__(self):
@@ -64,6 +65,7 @@ class PatternData(Pattern):
 
 class Arm(BaseBox):
     def __init__(self, pattern, result):
+        assert isinstance(pattern, Pattern)
         self.pattern = pattern
         self.result = result
     
