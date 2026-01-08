@@ -8,13 +8,15 @@ class Value:
     def __repr__(self):
         return "Value(%r, %r)" % (self.dcname, self.args)
 
-    def __str__(self):
+    def to_str(self):
         s = self.dcname
         if len(self.args) == 0: return s
         s += "("
-        s += ", ".join(str(a) for a in self.args)
+        s += ", ".join([a.to_str() for a in self.args])
         s += ")"
         return s
+
+    __str__ = to_str
 
 def find_func(name, ast):
     for f in ast.fns:
@@ -56,4 +58,4 @@ def run_fn(fnname, args, ast):
 
 def run(ast):
     v = run_fn("main", [], ast)
-    print(v)
+    print(v.to_str())
