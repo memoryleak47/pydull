@@ -1,0 +1,41 @@
+fn add(x, y) {
+    match x {
+        Suc(z) => Suc(add(z, y)),
+        Zero => y,
+    }
+}
+
+fn mul(x, y) {
+    match x {
+        Zero => Zero,
+        Suc(xx) => add(y, mul(xx, y)),
+    }
+}
+
+fn one() {
+    Suc(Zero)
+}
+
+fn factorial(x) {
+    match x {
+        Zero => one(),
+        Suc(xx) => mul(x, factorial(xx)),
+    }
+}
+
+fn ten() {
+    add(five(), five())
+}
+
+fn five() {
+    Suc(Suc(Suc(Suc(Suc(Zero)))))
+}
+
+fn seven() {
+    Suc(Suc(five()))
+}
+
+fn main() {
+    factorial(seven())
+}
+
