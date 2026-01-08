@@ -1,6 +1,7 @@
 from rply.token import BaseBox
 
 class FnDef(BaseBox):
+    _immutable_fields_ = ["name", "args[*]", "expr"]
     def __init__(self, name, args, expr):
         assert isinstance(name, str)
         self.name = name
@@ -19,6 +20,7 @@ class Expr(BaseBox):
     pass
 
 class Match(Expr):
+    _immutable_fields_ = ["head", "arms[*]"]
     def __init__(self, head, arms):
         self.head = head
         x = []
@@ -31,6 +33,7 @@ class Match(Expr):
         return "Match(%r, %r)" % (self.head, self.arms)
 
 class DataConstr(Expr):
+    _immutable_fields_ = ["name", "exprs[*]"]
     def __init__(self, name, exprs):
         self.name = name
         self.exprs = exprs
@@ -39,6 +42,7 @@ class DataConstr(Expr):
         return "DataConstr(%r, %r)" % (self.name, self.exprs)
 
 class FnCall(Expr):
+    _immutable_fields_ = ["name", "exprs[*]"]
     def __init__(self, name, exprs):
         self.name = name
         self.exprs = exprs
@@ -47,6 +51,7 @@ class FnCall(Expr):
         return "FnCall(%r, %r)" % (self.name, self.exprs)
 
 class Var(Expr):
+    _immutable_fields_ = ["name"]
     def __init__(self, name):
         assert isinstance(name, str)
         self.name = name
@@ -58,6 +63,7 @@ class Pattern(BaseBox):
     pass
 
 class PatternVar(Pattern):
+    _immutable_fields_ = ["name"]
     def __init__(self, name):
         self.name = name
     
@@ -65,6 +71,7 @@ class PatternVar(Pattern):
         return "PatternVar(%r)" % self.name
 
 class PatternData(Pattern):
+    _immutable_fields_ = ["name", "vars[*]"]
     def __init__(self, name, vars):
         self.name = name
         l = []
@@ -77,6 +84,7 @@ class PatternData(Pattern):
         return "PatternData(%r, %r)" % (self.name, self.vars)
 
 class Arm(BaseBox):
+    _immutable_fields_ = ["pattern", "result"]
     def __init__(self, pattern, result):
         assert isinstance(pattern, Pattern)
         self.pattern = pattern
@@ -86,6 +94,7 @@ class Arm(BaseBox):
         return "Arm(%r, %r)" % (self.pattern, self.result)
 
 class Ast(BaseBox):
+    _immutable_fields_ = ["fns[*]"]
     def __init__(self, fns):
         fns2 = []
         for x in fns:

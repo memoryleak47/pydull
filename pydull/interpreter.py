@@ -1,7 +1,10 @@
 from pydull.dullast import *
 from rpython.rlib import jit
 
-driver = jit.JitDriver(reds="auto", greens=["f"], is_recursive=True)
+def get_printable_location(f, ast):
+    return f.name
+
+driver = jit.JitDriver(get_printable_location=get_printable_location, reds="auto", greens=["f", "ast"], is_recursive=True)
 
 class Value:
     def __init__(self, dcname, args):
@@ -21,6 +24,7 @@ class Value:
 
     __str__ = to_str
 
+@jit.elidable
 def find_func(name, ast):
     for f in ast.fns:
         if f.name == name:
@@ -59,7 +63,7 @@ def run_fn(fnname, args, ast):
     for i, a in enumerate(args):
         b = f.args[i]
         sigma[b.name] = a
-    driver.jit_merge_point(f=f)
+    driver.jit_merge_point(f=f, ast=ast)
     return eval_expr(f.expr, sigma, ast)
 
 def run(ast):
