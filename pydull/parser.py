@@ -20,6 +20,10 @@ class DummyList(BaseBox):
     def __init__(self, l):
         self.l = l
 
+def unpack_list(bb):
+    assert isinstance(bb, DummyList)
+    return bb.l
+
 class DummyStr(BaseBox):
     def __init__(self, s):
         self.s = s
@@ -37,12 +41,11 @@ pg = ParserGenerator(
 @pg.production('program : fn_defs')
 def program(p):
     p0 = p[0]
-    assert(isinstance(p0, DummyList))
-    return Ast(p0.l)
+    return Ast(unpack_list(p0))
 
 @pg.production('fn_defs : fn_defs fn_def')
 def fn_defs_multiple(p):
-    return DummyList(p[0] + [p[1]])
+    return DummyList(unpack_list(p[0]) + [p[1]])
 
 @pg.production('fn_defs : fn_def')
 def fn_defs_single(p):
@@ -62,7 +65,7 @@ def argdecl_empty(p):
 
 @pg.production('fn_args : fn_args COMMA expr')
 def fn_args_multiple(p):
-    return DummyList(p[0] + [p[2]])
+    return DummyList(unpack_list(p[0]) + [p[2]])
 
 @pg.production('fn_args : expr')
 def fn_args_single(p):
@@ -78,7 +81,7 @@ def match_expr(p):
 
 @pg.production('match_arms : match_arms match_arm')
 def match_arms_multiple(p):
-    return DummyList(p[0] + [p[1]])
+    return DummyList(unpack_list(p[0]) + [p[1]])
 
 @pg.production('match_arms : match_arm')
 def match_arms_single(p):
@@ -98,11 +101,12 @@ def pattern_data_no_vars(p):
 
 @pg.production('pattern : UPPER_IDENTIFIER LPAREN pattern_vars RPAREN')
 def pattern_data(p):
-    return PatternData(p[0].getstr(), p[2])
+    dl = p[2]
+    return PatternData(p[0].getstr(), unpack_list(dl))
 
 @pg.production('pattern_vars : pattern_vars COMMA pattern_var')
 def pattern_vars_multiple(p):
-    return DummyList(p[0] + [p[2]])
+    return DummyList(unpack_list(p[0]) + [p[2]])
 
 @pg.production('pattern_vars : pattern_var')
 def pattern_vars_single(p):
@@ -114,7 +118,8 @@ def pattern_var(p):
 
 @pg.production('expr : LOWER_IDENTIFIER LPAREN exprs RPAREN')
 def expr_fn_call(p):
-    return FnCall(p[0].getstr(), p[2])
+    dl = p[2]
+    return FnCall(p[0].getstr(), unpack_list(dl))
 
 @pg.production('expr : LOWER_IDENTIFIER LPAREN RPAREN')
 def expr_fn_call_no_args(p):
@@ -126,7 +131,7 @@ def expr_var(p):
 
 @pg.production('expr : UPPER_IDENTIFIER LPAREN exprs RPAREN')
 def expr_data_constr(p):
-    return DataConstr(p[0].getstr(), p[2])
+    return DataConstr(p[0].getstr(), unpack_list(p[2]))
 
 @pg.production('expr : UPPER_IDENTIFIER')
 def expr_data_constr_no_args(p):
@@ -134,7 +139,7 @@ def expr_data_constr_no_args(p):
 
 @pg.production('exprs : exprs COMMA expr')
 def exprs_multiple(p):
-    return DummyList(p[0] + [p[2]])
+    return DummyList(unpack_list(p[0]) + [p[2]])
 
 @pg.production('exprs : expr')
 def exprs_single(p):
