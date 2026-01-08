@@ -1,6 +1,6 @@
 from rply import LexerGenerator, ParserGenerator
 
-from pydull.dullast import FnDef, Match, DataConstr, FnCall, Var, PatternVar, PatternData, Arm
+from pydull.dullast import FnDef, Match, DataConstr, FnCall, Var, PatternVar, PatternData, Arm, Ast
 
 lg = LexerGenerator()
 
@@ -29,7 +29,7 @@ pg = ParserGenerator(
 
 @pg.production('program : fn_defs')
 def program(p):
-    return p[0]
+    return Ast(p[0])
 
 @pg.production('fn_defs : fn_defs fn_def')
 def fn_defs_multiple(p):
@@ -133,3 +133,6 @@ def exprs_single(p):
     return [p[0]]
 
 parser = pg.build()
+
+def parse(s):
+    return parser.parse(lexer.lex(s))

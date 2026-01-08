@@ -5,7 +5,7 @@ def test_simple_constructor_in_function():
 fn make_suc(x) {
     Suc(x)
 }"""
-    ast = parser.parse(lexer.lex(s))
+    ast = parser.parse(lexer.lex(s)).fns
     assert len(ast) == 1
     fn_def = ast[0]
     assert fn_def.name == 'make_suc'
@@ -40,10 +40,10 @@ fn factorial(x) {
 """
 
 def test_parser():
-    ast = parser.parse(lexer.lex(s))
-    import pdb; pdb.set_trace()
+    ast = parser.parse(lexer.lex(s)).fns
     assert len(ast) == 4
     assert ast[0].name == 'add'
     assert ast[1].name == 'mul'
     assert ast[2].name == 'one'
     assert ast[3].name == 'factorial'
+    print(ast)
