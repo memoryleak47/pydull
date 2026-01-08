@@ -72,7 +72,11 @@ class Arm(BaseBox):
 
 class Ast(BaseBox):
     def __init__(self, fns):
-        self.fns = fns
+        fns2 = []
+        for x in fns:
+            assert(isinstance(x, FnDef))
+            fns2.append(x)
+        self.fns = fns2
     
     def __repr__(self):
         return "Ast(%r)" % self.fns

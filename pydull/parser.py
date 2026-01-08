@@ -1,7 +1,7 @@
 from rply import LexerGenerator, ParserGenerator
 from rply.token import BaseBox
 
-from pydull.dullast import FnDef, Match, DataConstr, FnCall, Var, PatternVar, PatternData, Arm, Ast
+from pydull.dullast import *
 
 lg = LexerGenerator()
 
@@ -89,7 +89,9 @@ def match_arms_single(p):
 
 @pg.production('match_arm : pattern ARROW expr COMMA')
 def match_arm(p):
-    return Arm(p[0], p[2])
+    p2 = p[2]
+    assert(isinstance(p2, Expr))
+    return Arm(p[0], p2)
 
 @pg.production('pattern : LOWER_IDENTIFIER')
 def pattern_var(p):
@@ -148,4 +150,6 @@ def exprs_single(p):
 parser = pg.build()
 
 def parse(s):
-    return parser.parse(lexer.lex(s))
+    ast = parser.parse(lexer.lex(s))
+    assert(isinstance(ast, Ast))
+    return ast
